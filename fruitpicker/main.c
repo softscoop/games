@@ -54,18 +54,19 @@ int main(void)
 {
     const int screenWidth = 640;
     const int screenHeight = 480;
-    InitWindow(screenWidth, screenHeight, "fruit");
+    InitWindow(screenWidth, screenHeight, "Fruit Clicker");
     SetTargetFPS(60);
+    HideCursor();
     Vector2 mousePos = {-40,-40};
     Vector2 fruitPos = {GetRandomValue(0, (screenWidth - 1) - SPRITE_SIZE),
         GetRandomValue(0, (screenHeight - 1) - SPRITE_SIZE)};
     int score = 0;
     int highscore = 0;
+    int randFruitPick = 0;
     Timer playTimer;
     bool gameFirstFrame = true;
     Texture2D background = LoadTexture("./assets/backgrounds/background.png");
     Texture2D mouseSprite = LoadTexture("./assets/mouse.png");
-    HideCursor();
     Texture2D fruitSprites[] = {
         LoadTexture("./assets/sprites/apple.png"),
         LoadTexture("./assets/sprites/blueberry.png"),
@@ -74,7 +75,6 @@ int main(void)
         LoadTexture("./assets/sprites/lemon.png"),
         LoadTexture("./assets/sprites/melon.png"),
         LoadTexture("./assets/sprites/strawberry.png")};
-    int randFruitPick = 0;
 
     while (!WindowShouldClose()){
 
@@ -85,11 +85,10 @@ int main(void)
 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
             if (CheckCollisionPointRec(GetMousePosition(), (Rectangle){fruitPos.x,fruitPos.y,SPRITE_SIZE,SPRITE_SIZE})){
-                //update score etc;
                 score += 1;
                 randFruitPick = GetRandomValue(0, 7-1);
-                fruitPos.x = GetRandomValue(0, (screenWidth - 1) - SPRITE_SIZE);
-                fruitPos.y = GetRandomValue(0, (screenHeight - 1) - SPRITE_SIZE);
+                fruitPos.x = GetRandomValue(0, screenWidth - SPRITE_SIZE);
+                fruitPos.y = GetRandomValue(0, screenHeight - SPRITE_SIZE);
             }
             
         }
@@ -107,8 +106,6 @@ int main(void)
             DrawTexture(fruitSprites[randFruitPick], fruitPos.x,fruitPos.y,WHITE);
             DrawText(TextFormat("Score: %d/%d", score, highscore), 10,10,30, BLACK);
             DrawTexture(mouseSprite,GetMousePosition().x, GetMousePosition().y, WHITE);
-            //DrawText(TextFormat("Time: %.2f", TimerTime(playTimer)), 20,50,20, RED);
-            //DrawText(TextFormat("HighScore: %d", highscore), 20,80,20, RED);
         EndDrawing();
     }
     CloseWindow();
