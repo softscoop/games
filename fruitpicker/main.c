@@ -1,0 +1,101 @@
+#include "raylib.h"
+
+#define SPRITE_SIZE 64
+
+typedef enum{
+    TIMER_IDLE,
+    TIMER_RUNNING,
+    TIMER_PAUSED
+} TimerState;
+
+typedef struct Timer{
+    TimerState state;
+    double timeStamp;
+    double elapsedTime;
+    double savedTime;
+} Timer;
+
+double TimerTime(Timer t){
+    switch (t.state){
+        case TIMER_RUNNING:
+            return t.elapsedTime + (GetTime() - t.timeStamp);
+            break;
+        case TIMER_IDLE:
+            return 0.0;
+            break;
+        case TIMER_PAUSED:
+            return t.elapsedTime;
+            break;
+        default:
+            break;
+    }
+};
+
+void TimerStart(Timer* t){
+    t->state = TIMER_RUNNING;
+    t->elapsedTime = 0.0 + t->savedTime;
+    t->savedTime = 0.0;
+    t->timeStamp = GetTime();
+};
+
+void TimerPause(Timer* t){
+	if (t->state == TIMER_IDLE) return;
+    if (t->state == TIMER_PAUSED){
+        t->state = TIMER_RUNNING;
+        t->timeStamp = GetTime();
+    }
+    else{
+        t->state = TIMER_PAUSED;
+        t->elapsedTime += GetTime() - t->timeStamp;
+    }
+};
+
+int main(void)
+{
+    const int screenWidth = 640;
+    const int screenHeight = 480;
+    InitWindow(screenWidth, screenHeight, "fruit");
+    SetTargetFPS(60);
+    Vector2 mousePos = {-40,-40};
+    Vector2 fruitPos = {GetRandomValue(0, (screenWidth - 1) - SPRITE_SIZE),
+        GetRandomValue(0, (screenHeight - 1) - SPRITE_SIZE)};
+    int score = 0;
+    int highscore = 0;
+    Timer playTimer;
+    bool gameFirstFrame = true;
+
+    while (!WindowShouldClose()){
+
+        if (gameFirstFrame){
+            TimerStart(&playTimer);
+            gameFirstFrame = false;
+        } 
+
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            if (CheckCollisionPointRec(GetMousePosition(), (Rectangle){fruitPos.x,fruitPos.y,SPRITE_SIZE,SPRITE_SIZE})){
+                //update score etc;
+                score += 1;
+                fruitPos.x = GetRandomValue(0, (screenWidth - 1) - SPRITE_SIZE);
+                fruitPos.y = GetRandomValue(0, (screenHeight - 1) - SPRITE_SIZE);
+            }
+            
+        }
+
+        if (TimerTime(playTimer) >= 10){
+            if (score > highscore) highscore = score;
+            score = 0;
+            TimerStart(&playTimer);
+        }
+        
+        BeginDrawing();
+            ClearBackground(BLACK);
+            DrawRectangleV(fruitPos,(Vector2){64,64}, RED);
+            DrawText(TextFormat("Score: %d", score), 20,20,20, RED);
+            DrawText(TextFormat("Time: %.2f", TimerTime(playTimer)), 20,50,20, RED);
+            DrawText(TextFormat("HighScore: %d", highscore), 20,80,20, RED);
+        EndDrawing();
+    }
+    CloseWindow();
+
+    return 0;
+}
