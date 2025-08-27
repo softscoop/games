@@ -1,4 +1,6 @@
 #include "raylib.h"
+#include "stdio.h"
+#include "stdlib.h"
 
 #define SPRITE_SIZE 64
 
@@ -75,6 +77,14 @@ int main(void)
         LoadTexture("./assets/sprites/lemon.png"),
         LoadTexture("./assets/sprites/melon.png"),
         LoadTexture("./assets/sprites/strawberry.png")};
+    
+    FILE *fptr;
+    fptr = fopen("save.txt", "r");
+    char scoreString[100];
+    fgets(scoreString, 100, fptr);
+    highscore = atoi(scoreString);
+    printf("%s", scoreString);
+    fclose(fptr);
 
     while (!WindowShouldClose()){
 
@@ -108,6 +118,9 @@ int main(void)
             DrawTexture(mouseSprite,GetMousePosition().x, GetMousePosition().y, WHITE);
         EndDrawing();
     }
+    fptr = fopen("save.txt", "w");
+    fprintf(fptr, TextFormat("%d", highscore));
+    fclose(fptr);
     CloseWindow();
 
     return 0;
