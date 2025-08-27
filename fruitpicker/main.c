@@ -100,7 +100,6 @@ int main(void)
                 fruitPos.x = GetRandomValue(0, screenWidth - SPRITE_SIZE);
                 fruitPos.y = GetRandomValue(0, screenHeight - SPRITE_SIZE);
             }
-            
         }
 
         if (TimerTime(playTimer) >= 10){
